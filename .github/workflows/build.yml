@@ -16,15 +16,8 @@ permissions:
 
 jobs:
   build-windows:
-    name: Build Windows (amd64/arm64)
+    name: Build Windows amd64
     runs-on: windows-latest
-    strategy:
-      matrix:
-        include:
-          - goarch: amd64
-            name: ofd2pdf-windows-amd64
-          - goarch: arm64
-            name: ofd2pdf-windows-arm64
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -40,23 +33,16 @@ jobs:
 
       - name: Build
         env:
-          GOARCH: ${{ matrix.goarch }}
           CGO_ENABLED: 1
         run: |
-          go build -ldflags="-s -w" -o "${{ matrix.name }}.exe" .
+          go build -ldflags="-s -w" -o "ofd2pdf.exe" .
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.name }}
-          path: "${{ matrix.name }}.exe"
+          name: ofd2pdf-windows-amd64
+          path: "ofd2pdf.exe"
           retention-days: 7
-
-  # Optional: Linux/macOS builds on native runners (if needed later)
-  # build-linux:
-  #   name: Build Linux
-  #   runs-on: ubuntu-latest
-  #   ...
 
   release:
     name: Create Release
