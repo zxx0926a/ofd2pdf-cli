@@ -1,0 +1,17 @@
+# Build artifacts
+*.exe
+*.zip
+*.tar.gz
+
+# Go
+go.sum
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
