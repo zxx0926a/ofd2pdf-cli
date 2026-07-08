@@ -31,11 +31,11 @@ jobs:
       - name: Download dependencies
         run: go mod download
 
-      - name: Build
+      - name: Build (CGO disabled)
         env:
-          CGO_ENABLED: 1
+          CGO_ENABLED: 0
         run: |
-          go build -ldflags="-s -w" -o "ofd2pdf.exe" .
+          go build -v -ldflags="-s -w" -o "ofd2pdf.exe" .
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
