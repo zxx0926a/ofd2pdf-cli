@@ -15,43 +15,16 @@ permissions:
   contents: write
 
 jobs:
-  build:
-    name: Build on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+  build-windows:
+    name: Build Windows (amd64/arm64)
+    runs-on: windows-latest
     strategy:
       matrix:
         include:
-          - os: windows-latest
-            goos: windows
-            goarch: amd64
-            ext: .exe
+          - goarch: amd64
             name: ofd2pdf-windows-amd64
-          - os: windows-latest
-            goos: windows
-            goarch: arm64
-            ext: .exe
+          - goarch: arm64
             name: ofd2pdf-windows-arm64
-          - os: ubuntu-latest
-            goos: linux
-            goarch: amd64
-            ext: ""
-            name: ofd2pdf-linux-amd64
-          - os: ubuntu-latest
-            goos: linux
-            goarch: arm64
-            ext: ""
-            name: ofd2pdf-linux-arm64
-          - os: macos-latest
-            goos: darwin
-            goarch: amd64
-            ext: ""
-            name: ofd2pdf-darwin-amd64
-          - os: macos-latest
-            goos: darwin
-            goarch: arm64
-            ext: ""
-            name: ofd2pdf-darwin-arm64
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -67,22 +40,27 @@ jobs:
 
       - name: Build
         env:
-          GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
-          CGO_ENABLED: 0
+          CGO_ENABLED: 1
         run: |
-          go build -ldflags="-s -w" -o "${{ matrix.name }}${{ matrix.ext }}" .
+          go build -ldflags="-s -w" -o "${{ matrix.name }}.exe" .
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.name }}
-          path: "${{ matrix.name }}${{ matrix.ext }}"
+          path: "${{ matrix.name }}.exe"
           retention-days: 7
+
+  # Optional: Linux/macOS builds on native runners (if needed later)
+  # build-linux:
+  #   name: Build Linux
+  #   runs-on: ubuntu-latest
+  #   ...
 
   release:
     name: Create Release
-    needs: build
+    needs: build-windows
     if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
